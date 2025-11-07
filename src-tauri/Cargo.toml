@@ -1,7 +1,7 @@
 [package]
 name = "local-fonts-agent"
 version = "0.1.0"
-description = "A Tauri App"
+description = "A lightweight cross-platform desktop application that serves system fonts via HTTP API."
 authors = ["you"]
 edition = "2021"
 
