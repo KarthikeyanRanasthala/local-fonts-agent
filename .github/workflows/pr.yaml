@@ -1,0 +1,16 @@
+name: "test-on-pr"
+
+on: [pull_request]
+
+# This workflow will build your tauri app without uploading it anywhere.
+
+# Prevent multiple workflow runs from happening simultaneously
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test-tauri:
+    uses: ./.github/workflows/build-tauri.yaml
+    permissions:
+      contents: write

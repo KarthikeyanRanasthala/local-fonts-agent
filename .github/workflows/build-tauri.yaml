@@ -1,0 +1,79 @@
+name: "Build Tauri App"
+
+on:
+  workflow_call:
+    inputs:
+      tag-name:
+        description: 'Tag name for release (leave empty for PR builds)'
+        required: false
+        type: string
+      release-name:
+        description: 'Release name (leave empty for PR builds)'
+        required: false
+        type: string
+      release-body:
+        description: 'Release body (leave empty for PR builds)'
+        required: false
+        type: string
+      release-draft:
+        description: 'Create as draft release'
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        description: 'Mark as prerelease'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            args: "--target aarch64-apple-darwin"
+          - platform: "macos-latest" # for Intel based macs.
+            args: "--target x86_64-apple-darwin"
+          - platform: "ubuntu-22.04" # for x86_64 Linux
+            args: ""
+          - platform: "ubuntu-22.04-arm" # for ARM64 Linux (native runner)
+            args: ""
+          - platform: "windows-latest" # for x86_64 Windows
+            args: ""
+          - platform: "windows-latest" # for ARM64 Windows
+            args: "--target aarch64-pc-windows-msvc"
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || contains(matrix.args, 'aarch64-pc-windows-msvc') && 'aarch64-pc-windows-msvc' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install dependencies (Ubuntu only)
+        if: startsWith(matrix.platform, 'ubuntu-')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ inputs.tag-name }}
+          releaseName: ${{ inputs.release-name }}
+          releaseBody: ${{ inputs.release-body }}
+          releaseDraft: ${{ inputs.release-draft }}
+          prerelease: ${{ inputs.prerelease }}
+          args: ${{ matrix.args }}

@@ -1,0 +1,25 @@
+name: "publish"
+
+on:
+  push:
+    branches:
+      - release
+# On each push to the `release` branch it will create or update a GitHub release, build your app, and upload the artifacts to the release.
+
+# Prevent multiple workflow runs from happening simultaneously
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish-tauri:
+    uses: ./.github/workflows/build-tauri.yaml
+    permissions:
+      contents: write
+    with:
+      tag-name: "local-fonts-agent-v__VERSION__"
+      release-name: "Local Fonts Agent v__VERSION__"
+      release-body: |
+        See the assets below to download and install this version.
+      release-draft: true
+      prerelease: false
