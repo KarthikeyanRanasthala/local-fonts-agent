@@ -15,6 +15,15 @@ A lightweight cross-platform desktop application that serves system fonts via HT
 - 📝 **Logging**: Structured logging with daily rotation
 - 🖥️ **Cross-platform**: Works on macOS, Windows, and Linux
 
+## Download
+
+Download the latest version from [GitHub Releases](https://github.com/KarthikeyanRanasthala/local-fonts-agent/releases).
+
+Choose the appropriate file for your platform:
+- **macOS**: `.dmg` or `.app.tar.gz`
+- **Windows**: `-setup.exe` or `.msi`
+- **Linux**: `.AppImage`, `.deb`, or `.rpm`
+
 ## API Endpoints
 
 ### Base URL
